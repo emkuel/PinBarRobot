@@ -1,0 +1,2 @@
+# PinBarRobot
+Robotic PinBar trading
