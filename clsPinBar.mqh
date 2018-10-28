@@ -18,7 +18,7 @@ private:
                      double lotsize;
                      int order;
                      int Opened;
-                     int m;
+                     int magicnumber;
                      
 public:              
                      
@@ -33,7 +33,7 @@ public:
 };
 bool clsPinBar::PinBarCandle()
 {
-   return (true);
+   
    double total = High[1]-Low[1];
    double body=MathAbs(Open[1]-Close[1]);
   
@@ -94,9 +94,9 @@ void clsPinBar::OpenOrder()
       Print("Jest miejsce...");
       if (order == 1)
       {                      
-         if(OrderSend(Symbol(),order,lotsize,Bid,3,Bid+(stoploss*Point),Bid - (takeprofit* Point),NULL,0+m,0,clrGreen))         
+         if(OrderSend(Symbol(),order,lotsize,Bid,3,Bid+(stoploss*Point),Bid - (takeprofit* Point),NULL,0+magicnumber,0,clrGreen))         
             {
-               m+=1;
+               magicnumber+=1;
                Opened+=1;                        
                Print("Otwarta pozycja short.");
             }     
@@ -105,9 +105,9 @@ void clsPinBar::OpenOrder()
       }
       else if (order == 0)
       {         
-         if(OrderSend(Symbol(),order,lotsize,Ask,3,Ask - (stoploss * Point),Ask + (takeprofit * Point),NULL,0+m,0,clrGreen))
+         if(OrderSend(Symbol(),order,lotsize,Ask,3,Ask - (stoploss * Point),Ask + (takeprofit * Point),NULL,0+magicnumber,0,clrGreen))
             {
-               m+=1;
+               magicnumber+=1;
                Opened+=1; 
                Print("Otwarta pozycja long.");
             }
@@ -122,7 +122,6 @@ bool clsPinBar::CheckOrderPinBar()
    
    if (OrdersTotal()!= maxOpenPosition)
       Opened = OrdersTotal();    
-      
    
    if (Opened < maxOpenPosition) 
       return(true);
@@ -135,10 +134,10 @@ clsPinBar::clsPinBar(double _bodycandle,double _minsize, double _lotsize, int _m
          bodycandle=_bodycandle *.01;
          minSize=_minsize;
          maxOpenPosition = _maxopenposition;
-         m=1;
+         magicnumber=1;
          //ArrayResize(arrPosition,_maxopenposition);
          
-         order = 0;
+         order = -1;
   }
 
 
