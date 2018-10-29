@@ -11,18 +11,27 @@
 #include <clsPinBar.mqh>
 #include <clsOrder.mqh>
 
-extern double Percentage_StopLoss = 2;
-extern double Percentage_TakeProfit = 2;
+enum Profit
+{   
+   Pips=0,
+   Percentage=1
+};
+
+extern Profit StopLossMode;
+extern double StopLoss = 300;
+extern Profit TakeProfitMode;
+extern double TakeProfit = 500;
 
 extern double LotSize = 1.0;
 
-extern double BodyPinBarPart = 25.0;
+extern double BodyPinBarPart = 40.0;
 extern double MinSize = 50.0;
+extern bool OpenPositionOnNewPinBar=false;
 extern int MaxOpenPosition = 2;
 
-double StopLoss;
-double TakeProfit;
-clsPinBar PinBar(BodyPinBarPart,MinSize,LotSize,MaxOpenPosition);
+double _StopLoss;
+double _TakeProfit;
+clsPinBar PinBar(BodyPinBarPart,MinSize,LotSize,MaxOpenPosition,OpenPositionOnNewPinBar);
 clsOrder Order();
 
 //+------------------------------------------------------------------+
@@ -31,14 +40,11 @@ clsOrder Order();
 int OnInit()
   {     
   
-  StopLoss = Order.GetValueFromPercetnage(Percentage_StopLoss,LotSize);
-  if (Percentage_StopLoss==Percentage_TakeProfit)
-      TakeProfit = StopLoss;
-  else
-      TakeProfit = Order.GetValueFromPercetnage(Percentage_TakeProfit,LotSize);
+  _StopLoss = Order.GetValueFromPercetnage(StopLoss,LotSize,StopLossMode);
+  _TakeProfit = Order.GetValueFromPercetnage(TakeProfit,LotSize,TakeProfitMode);
   
-  PinBar.stoploss=StopLoss;
-  PinBar.takeprofit=TakeProfit;
+  PinBar.stoploss=_StopLoss;
+  PinBar.takeprofit=_TakeProfit;
   
    return(INIT_SUCCEEDED);
   }
@@ -55,11 +61,9 @@ void OnDeinit(const int reason)
 //+------------------------------------------------------------------+
 void OnTick()
   {
-   if (PinBar.PinBarCandle())
-   {
-      if(PinBar.CheckOrderPinBar())
+   if (PinBar.PinBarInitBar())
+      if (PinBar.PinBarCandle())   
          PinBar.OpenOrder();
-   }
      
   }
 //+------------------------------------------------------------------+

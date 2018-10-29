@@ -15,16 +15,17 @@ class clsOrder
 private:
 
 public:
-                     double GetValueFromPercetnage(double Prct,double LotSize);
+                     double GetValueFromPercetnage(double Value,double LotSize,int Mode);
                      clsOrder();
                     ~clsOrder();
   };
 //+------------------------------------------------------------------+
 //|                                                                  |
 //+------------------------------------------------------------------+
-double clsOrder::GetValueFromPercetnage(double _Prct,double _lotsize)
+double clsOrder::GetValueFromPercetnage(double _Value,double _lotsize,int Mode)
 {  
-    double balance   = AccountBalance()/1000;
+    double stopLossPips;
+    double balance   = AccountBalance();
     //double tickvalue = MarketInfo(_Symbol, MODE_TICKVALUE);
     double lotsize   = MarketInfo(_Symbol, MODE_LOTSIZE);
     double spread    = MarketInfo(_Symbol, MODE_SPREAD);
@@ -34,7 +35,11 @@ double clsOrder::GetValueFromPercetnage(double _Prct,double _lotsize)
     // fix for extremely rare occasion when a change in ticksize leads to a change in tickvalue
     //double reliable_tickvalue = tickvalue * point / ticksize;           
     
-    double stopLossPips = MathFloor((_Prct/100) * (balance) / (_lotsize * lotsize * ticksize ) - spread);
+    if (Mode == 1)
+      stopLossPips = MathFloor((_Value/100) * (balance) / (_lotsize * lotsize * ticksize ) - spread);      
+    else if (Mode == 0)
+       stopLossPips = _Value;
+      
     
     //double stopLossPips = _Prct * balance / (_lotsize * lotsize * reliable_tickvalue ) - spread;
 
