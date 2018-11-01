@@ -19,10 +19,11 @@ private:
                      bool OpenPositionOnNewPinBar;
                      int magicnumber;
                      double arrayBar[1][7];
-                     
-                     bool CheckOrderPinBar();
+                     int CandleNumber;
                      bool CreateArray;
-                     bool CheckArrayBar();
+                     
+                     bool CheckOrderPinBar();                     
+                     void CheckArrayBar();
                      void CreateArrayBar();
                      double GetPairs(string sSymbol);
                      double GetPairOrder();
@@ -35,13 +36,14 @@ public:
                      void OpenOrder();
                      
                      clsPinBar(double _bodycandle,double _minsize, double _lotsize, int _maxopenposition,
-                              bool OpenPositionOnNewPinBar);
+                              bool _OpenPositionOnNewPinBar, int _CandleNumber);
                      ~clsPinBar();
 
 };
 
 bool clsPinBar::PinBarInitBar()
 {
+   CheckArrayBar();
    CreateArrayBar();
    
    if(!OpenPositionOnNewPinBar)
@@ -50,8 +52,7 @@ bool clsPinBar::PinBarInitBar()
       else
             return(false);
    else
-      if (CheckArrayBar()
-         && arrayBar[0][6] < arrayBar[0][5]
+      if (arrayBar[0][6] < arrayBar[0][5]
          && arrayBar[0][4] == GetPairs(_Symbol))
             return(true);
       else
@@ -67,8 +68,8 @@ bool clsPinBar::PinBarCandle()
   
      if (body<maxSize && total >minSize*Point
          && arrayBar[0][2]-arrayBar[0][0]<maxSize
-         && arrayBar[0][3]<Low[2]
-         && arrayBar[0][3]<Low[3])
+         && arrayBar[0][3]<Low[CandleNumber+1]
+         && arrayBar[0][3]<Low[CandleNumber+2])
      {
             order=0;
             Print("UP1");
@@ -78,8 +79,8 @@ bool clsPinBar::PinBarCandle()
      else if (body<maxSize && total >minSize*Point
          && arrayBar[0][0]>arrayBar[0][1]
          && arrayBar[0][2]-arrayBar[0][1]<maxSize
-         && arrayBar[0][3]>Low[2]
-         && arrayBar[0][3]>Low[3])      
+         && arrayBar[0][3]>Low[CandleNumber+1]
+         && arrayBar[0][3]>Low[CandleNumber+2])      
      {
             order=0;
             Print("UP2");
@@ -89,8 +90,8 @@ bool clsPinBar::PinBarCandle()
      else if (body<maxSize &&  total >minSize*Point
          && arrayBar[0][0]>arrayBar[0][1]
          && arrayBar[0][0]-arrayBar[0][3]<maxSize
-         && arrayBar[0][2]>High[2]
-         && arrayBar[0][2]>High[3])
+         && arrayBar[0][2]>High[CandleNumber+1]
+         && arrayBar[0][2]>High[CandleNumber+2])
      {
             order=1;
             Print("DOWN1");
@@ -100,8 +101,8 @@ bool clsPinBar::PinBarCandle()
      else if (body<maxSize &&  total >minSize*Point
          && arrayBar[0][0]<arrayBar[0][1]
          && arrayBar[0][1]-arrayBar[0][3]<maxSize
-         && arrayBar[0][2]>High[2]
-         && arrayBar[0][2]>High[3])
+         && arrayBar[0][2]>High[CandleNumber+1]
+         && arrayBar[0][2]>High[CandleNumber+2])
     {
             order=1;
             Print("DOWN2");
@@ -155,26 +156,23 @@ bool clsPinBar::CheckOrderPinBar()
    else
          return(false);
 }
-bool clsPinBar::CheckArrayBar()
+void clsPinBar::CheckArrayBar()
 {
-   if(Open[1] == arrayBar[0][0] 
-      && Close[1] == arrayBar[0][1]
-      && High[1] == arrayBar[0][2]
-      && Low[1]== arrayBar[0][3])
-         return(true);
-   else
-      CreateArray=false;
+   if (Open[CandleNumber] != arrayBar[0][0] 
+      && Close[CandleNumber] != arrayBar[0][1]
+      && High[CandleNumber] != arrayBar[0][2]
+      && Low[CandleNumber] != arrayBar[0][3])         
+         CreateArray=false;
       
-   return(false);
 }
 void clsPinBar::CreateArrayBar()
 {
    if (!CreateArray)
    {      
-      arrayBar[0][0]=Open[1];             //Open
-      arrayBar[0][1]=Close[1];            //Close
-      arrayBar[0][2]=High[1];             //High
-      arrayBar[0][3]=Low[1];              //Low
+      arrayBar[0][0]=Open[CandleNumber];  //Open
+      arrayBar[0][1]=Close[CandleNumber]; //Close
+      arrayBar[0][2]=High[CandleNumber];  //High
+      arrayBar[0][3]=Low[CandleNumber];   //Low
       arrayBar[0][4]=GetPairs(_Symbol);   //Pairs
       arrayBar[0][5]=maxOpenPosition;     //Max Open Positions
       arrayBar[0][6]=0;                   //Opened Positions
@@ -201,9 +199,10 @@ double clsPinBar::GetPairOrder()
    }
    
    return (TotalOrder);
-}
+ }
 
-clsPinBar::clsPinBar(double _bodycandle,double _minsize, double _lotsize, int _maxopenposition, bool _OpenPositionOnNewPinBar)
+clsPinBar::clsPinBar(double _bodycandle,double _minsize, double _lotsize, int _maxopenposition, 
+                     bool _OpenPositionOnNewPinBar, int _CandleNumber)
   {
          lotsize =_lotsize;
          bodycandle=_bodycandle *.01;
@@ -211,6 +210,7 @@ clsPinBar::clsPinBar(double _bodycandle,double _minsize, double _lotsize, int _m
          maxOpenPosition = _maxopenposition;
          magicnumber=1;
          OpenPositionOnNewPinBar=_OpenPositionOnNewPinBar;
+         CandleNumber=_CandleNumber;
          //ArrayResize(arrPosition,_maxopenposition);
          CreateArray=false;
          order = -1;

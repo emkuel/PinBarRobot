@@ -18,20 +18,21 @@ enum Profit
 };
 
 extern Profit StopLossMode;
-extern double StopLoss = 300;
+extern double StopLoss = 150;
 extern Profit TakeProfitMode;
-extern double TakeProfit = 500;
+extern double TakeProfit = 200;
+input double LotSize = 1.0;
 
-extern double LotSize = 1.0;
-
-extern double BodyPinBarPart = 40.0;
-extern double MinSize = 50.0;
 extern bool OpenPositionOnNewPinBar=false;
 extern int MaxOpenPosition = 2;
 
+input int CandleNumber =1;
+extern double BodyPinBarPart = 40.0;
+extern double MinSize = 50.0;
+
 double _StopLoss;
 double _TakeProfit;
-clsPinBar PinBar(BodyPinBarPart,MinSize,LotSize,MaxOpenPosition,OpenPositionOnNewPinBar);
+clsPinBar PinBar(BodyPinBarPart,MinSize,LotSize,MaxOpenPosition,OpenPositionOnNewPinBar,CandleNumber);
 clsOrder Order();
 
 //+------------------------------------------------------------------+
