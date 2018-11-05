@@ -17,27 +17,35 @@ private:
                      double lotsize;
                      int order;
                      bool OpenPositionOnNewPinBar;
-                     int magicnumber;
+                     int magicnumber; 
                      double arrayBar[1][7];
                      int CandleNumber;
                      bool CreateArray;
+                     double CandlePrice;
                      
                      bool CheckOrderPinBar();                     
                      void CheckArrayBar();
                      void CreateArrayBar();
                      double GetPairs(string sSymbol);
-                     double GetPairOrder();
-                                          
-public:                                   
-                     double stoploss;
-                     double takeprofit;  
+                     double GetPairOrder();                                       
+public:                                
+                      
                      bool PinBarInitBar();                    
                      bool PinBarCandle();                     
                      void OpenOrder();
                      
-                     clsPinBar(double _bodycandle,double _minsize, double _lotsize, int _maxopenposition,
+                     clsPinBar(double _bodycandle,double _minsize , int _maxopenposition,
                               bool _OpenPositionOnNewPinBar, int _CandleNumber);
-                     ~clsPinBar();
+                     ~clsPinBar();                     
+                     
+                     //double stoploss;
+                     //double takeprofit;
+                     
+                                          
+                     double GetPrice(){return(CandlePrice);};                     
+                     int GetOpenedOrder(){return((int)arrayBar[0][6]);};
+                     int GetMagicNumber(){return(magicnumber);};
+                     int GetOrder(){return(order);};
 
 };
 
@@ -72,6 +80,7 @@ bool clsPinBar::PinBarCandle()
          && arrayBar[0][3]<Low[CandleNumber+2])
      {
             order=0;
+            CandlePrice = Low[CandleNumber];
             Print("UP1");
             return(true);
      }
@@ -83,6 +92,7 @@ bool clsPinBar::PinBarCandle()
          && arrayBar[0][3]>Low[CandleNumber+2])      
      {
             order=0;
+            CandlePrice = Low[CandleNumber];
             Print("UP2");
             return(true);
      }
@@ -94,6 +104,7 @@ bool clsPinBar::PinBarCandle()
          && arrayBar[0][2]>High[CandleNumber+2])
      {
             order=1;
+            CandlePrice = High[CandleNumber];
             Print("DOWN1");
             return(true);
      }
@@ -105,6 +116,7 @@ bool clsPinBar::PinBarCandle()
          && arrayBar[0][2]>High[CandleNumber+2])
     {
             order=1;
+            CandlePrice = High[CandleNumber];
             Print("DOWN2");
             return(true);
     }
@@ -112,35 +124,35 @@ bool clsPinBar::PinBarCandle()
     return (false);
 }
 
-void clsPinBar::OpenOrder()
-{     
-   if (arrayBar[0][6] < maxOpenPosition)
-   {  
-      if (order == 1)
-      {                      
-         if(OrderSend(Symbol(),order,lotsize,Bid,3,Bid+(stoploss*Point),Bid - (takeprofit* Point),NULL,0+magicnumber,0,clrGreen))         
-            {
-               magicnumber+=1;
-               arrayBar[0][6]+=1;                        
-               Print("Short transaction opened");
-            }     
-         else
-            Print("Cannot open short transaction.");
-      }
-      else if (order == 0)
-      {         
-         if(OrderSend(Symbol(),order,lotsize,Ask,3,Ask - (stoploss * Point),Ask + (takeprofit * Point),NULL,0+magicnumber,0,clrGreen))
-            {
-               magicnumber+=1;
-               arrayBar[0][6]+=1; 
-               Print("Long transaction opened");
-            }
-         else
-            Print("Cannot open long transaction.");      
-      }
-   }
+// void clsPinBar::OpenOrder()
+// {     
+//    if (arrayBar[0][6] < maxOpenPosition)
+//    {  
+//       if (order == 1)
+//       {                      
+//          if(OrderSend(Symbol(),order,lotsize,Bid,3,Bid+(stoploss*Point),Bid - (takeprofit* Point),NULL,0+magicnumber,0,clrGreen))         
+//             {
+//                magicnumber++;
+//                arrayBar[0][6]++;                        
+//                Print("Short transaction opened");
+//             }     
+//          else
+//             Print("Cannot open short transaction.");
+//       }
+//       else if (order == 0)
+//       {         
+//          if(OrderSend(Symbol(),order,lotsize,Ask,3,Ask - (stoploss * Point),Ask + (takeprofit * Point),NULL,0+magicnumber,0,clrGreen))
+//             {
+//                magicnumber++;
+//                arrayBar[0][6]++; 
+//                Print("Long transaction opened");
+//             }
+//          else
+//             Print("Cannot open long transaction.");      
+//       }
+//    }
              
-}
+// }
 
 bool clsPinBar::CheckOrderPinBar()  
 {  
@@ -201,10 +213,10 @@ double clsPinBar::GetPairOrder()
    return (TotalOrder);
  }
 
-clsPinBar::clsPinBar(double _bodycandle,double _minsize, double _lotsize, int _maxopenposition, 
+clsPinBar::clsPinBar(double _bodycandle,double _minsize, int _maxopenposition, 
                      bool _OpenPositionOnNewPinBar, int _CandleNumber)
   {
-         lotsize =_lotsize;
+         
          bodycandle=_bodycandle *.01;
          minSize=_minsize;
          maxOpenPosition = _maxopenposition;
@@ -214,6 +226,7 @@ clsPinBar::clsPinBar(double _bodycandle,double _minsize, double _lotsize, int _m
          //ArrayResize(arrPosition,_maxopenposition);
          CreateArray=false;
          order = -1;
+         CandlePrice=-1;
   }
 
 

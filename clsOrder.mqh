@@ -15,16 +15,17 @@ class clsOrder
 private:
 
 public:
-                     double GetValueFromPercetnage(double Value,double LotSize,int Mode);
+                     double GetValueFromPercentage(double Value,double LotSize,int Mode);
+                     int OpenOrder(int OpenedOrder, int maxOpenPosition,int order,double lotsize, double stoploss,double takeprofit, int magicnumber);
                      clsOrder();
                     ~clsOrder();
   };
 //+------------------------------------------------------------------+
 //|                                                                  |
 //+------------------------------------------------------------------+
-double clsOrder::GetValueFromPercetnage(double _Value,double _lotsize,int Mode)
+double clsOrder::GetValueFromPercentage(double _Value,double _lotsize,int Mode)
 {  
-    double stopLossPips;
+    double stopLossPips=0;
     double balance   = AccountBalance();
     //double tickvalue = MarketInfo(_Symbol, MODE_TICKVALUE);
     double lotsize   = MarketInfo(_Symbol, MODE_LOTSIZE);
@@ -44,6 +45,36 @@ double clsOrder::GetValueFromPercetnage(double _Value,double _lotsize,int Mode)
     //double stopLossPips = _Prct * balance / (_lotsize * lotsize * reliable_tickvalue ) - spread;
 
    return (stopLossPips);
+}
+
+int  clsOrder::OpenOrder(int OpenedOrder, int maxOpenPosition, int order,double lotsize, double stoploss,double takeprofit, int magicnumber)
+{
+  if (OpenedOrder < maxOpenPosition)
+   {  
+      if (order == 1)
+      {                      
+         if(OrderSend(Symbol(),order,lotsize,Bid,3,Bid+(stoploss*Point),Bid - (takeprofit* Point),NULL,0+magicnumber,0,clrGreen))         
+            {
+               magicnumber++;
+               return (OpenedOrder++);                        
+               Print("Short transaction opened");
+            }     
+         else
+            Print("Cannot open short transaction.");
+      }
+      else if (order == 0)
+      {         
+         if(OrderSend(Symbol(),order,lotsize,Ask,3,Ask - (stoploss * Point),Ask + (takeprofit * Point),NULL,0+magicnumber,0,clrGreen))
+            {
+               magicnumber++;
+               return (OpenedOrder++); 
+               Print("Long transaction opened");
+            }
+         else
+            Print("Cannot open long transaction.");      
+      }
+   }
+   return (OpenedOrder);
 }
 
 clsOrder::clsOrder()

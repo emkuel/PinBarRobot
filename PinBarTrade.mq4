@@ -10,6 +10,7 @@
 
 #include <clsPinBar.mqh>
 #include <clsOrder.mqh>
+#include <clsTrendLine.mqh>
 
 enum Profit
 {   
@@ -21,7 +22,7 @@ extern Profit StopLossMode;
 extern double StopLoss = 150;
 extern Profit TakeProfitMode;
 extern double TakeProfit = 200;
-input double LotSize = 1.0;
+extern double LotSize = 1.0;
 
 extern bool OpenPositionOnNewPinBar=false;
 extern int MaxOpenPosition = 2;
@@ -32,21 +33,18 @@ extern double MinSize = 50.0;
 
 double _StopLoss;
 double _TakeProfit;
-clsPinBar PinBar(BodyPinBarPart,MinSize,LotSize,MaxOpenPosition,OpenPositionOnNewPinBar,CandleNumber);
+clsPinBar PinBar(BodyPinBarPart,MinSize,MaxOpenPosition,OpenPositionOnNewPinBar,CandleNumber);
 clsOrder Order();
-
+clsTrendLine TrendLine(5);
 //+------------------------------------------------------------------+
 //| Expert initialization function                                   |
 //+------------------------------------------------------------------+
 int OnInit()
   {     
   
-  _StopLoss = Order.GetValueFromPercetnage(StopLoss,LotSize,StopLossMode);
-  _TakeProfit = Order.GetValueFromPercetnage(TakeProfit,LotSize,TakeProfitMode);
-  
-  PinBar.stoploss=_StopLoss;
-  PinBar.takeprofit=_TakeProfit;
-  
+  StopLoss = Order.GetValueFromPercentage(StopLoss,LotSize,StopLossMode);
+  TakeProfit = Order.GetValueFromPercentage(TakeProfit,LotSize,TakeProfitMode);
+ 
    return(INIT_SUCCEEDED);
   }
 //+------------------------------------------------------------------+
@@ -63,8 +61,10 @@ void OnDeinit(const int reason)
 void OnTick()
   {
    if (PinBar.PinBarInitBar())
-      if (PinBar.PinBarCandle())   
-         PinBar.OpenOrder();
+      if (PinBar.PinBarCandle())
+        Order.OpenOrder(PinBar.GetOpenedOrder(),MaxOpenPosition,PinBar.GetOrder(),LotSize,
+                        StopLoss,TakeProfit,PinBar.GetMagicNumber());
+         //PinBar.OpenOrder();
      
   }
 //+------------------------------------------------------------------+
