@@ -11,12 +11,15 @@
 #include <clsPinBar.mqh>
 #include <clsOrder.mqh>
 #include <clsTrendLine.mqh>
+#include <clsCandle.mqh>
 
 enum Profit
 {   
    Pips=0,
-   Percentage=1
+   Percentage=1,
+   OverPinBar=2
 };
+
 
 extern Profit StopLossMode;
 extern double StopLoss = 150;
@@ -31,17 +34,15 @@ input int CandleNumber =1;
 extern double BodyPinBarPart = 40.0;
 extern double MinSize = 50.0;
 
-double _StopLoss;
-double _TakeProfit;
 clsPinBar PinBar(BodyPinBarPart,MinSize,MaxOpenPosition,OpenPositionOnNewPinBar,CandleNumber);
 clsOrder Order();
-clsTrendLine TrendLine(5);
+clsCandle Candle();
 //+------------------------------------------------------------------+
 //| Expert initialization function                                   |
 //+------------------------------------------------------------------+
 int OnInit()
   {     
-  
+  Comment("Account Balance: " + AccountBalance());
   StopLoss = Order.GetValueFromPercentage(StopLoss,LotSize,StopLossMode);
   TakeProfit = Order.GetValueFromPercentage(TakeProfit,LotSize,TakeProfitMode);
  
@@ -60,10 +61,12 @@ void OnDeinit(const int reason)
 //+------------------------------------------------------------------+
 void OnTick()
   {
-   if (PinBar.PinBarInitBar())
-      if (PinBar.PinBarCandle())
-        Order.OpenOrder(PinBar.GetOpenedOrder(),MaxOpenPosition,PinBar.GetOrder(),LotSize,
-                        StopLoss,TakeProfit,PinBar.GetMagicNumber());
+   
+    if(Candle.CheckCurrentCandle())
+      if (PinBar.PinBarInitBar())
+          if (PinBar.PinBarCandle())
+            Order.OpenOrder(PinBar.GetOpenedOrder(),MaxOpenPosition,PinBar.GetOrder(),LotSize,
+                            StopLoss,TakeProfit,PinBar.GetMagicNumber());
          //PinBar.OpenOrder();
      
   }

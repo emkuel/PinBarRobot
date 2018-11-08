@@ -18,9 +18,9 @@ private:
                      int order;
                      bool OpenPositionOnNewPinBar;
                      int magicnumber; 
-                     double arrayBar[1][7];
+                     double arrayBar[1][6];
+                     string arraySymbol[1];
                      int CandleNumber;
-                     bool CreateArray;
                      double CandlePrice;
                      
                      bool CheckOrderPinBar();                     
@@ -40,10 +40,9 @@ public:
                      
                      //double stoploss;
                      //double takeprofit;
-                     
                                           
                      double GetPrice(){return(CandlePrice);};                     
-                     int GetOpenedOrder(){return((int)arrayBar[0][6]);};
+                     int GetOpenedOrder(){return((int)arrayBar[0][5]);};
                      int GetMagicNumber(){return(magicnumber);};
                      int GetOrder(){return(order);};
 
@@ -51,7 +50,6 @@ public:
 
 bool clsPinBar::PinBarInitBar()
 {
-   CheckArrayBar();
    CreateArrayBar();
    
    if(!OpenPositionOnNewPinBar)
@@ -60,8 +58,8 @@ bool clsPinBar::PinBarInitBar()
       else
             return(false);
    else
-      if (arrayBar[0][6] < arrayBar[0][5]
-         && arrayBar[0][4] == GetPairs(_Symbol))
+      if (arrayBar[0][5] < arrayBar[0][4]
+         && arraySymbol[0] ==_Symbol)
             return(true);
       else
             return(false);
@@ -158,39 +156,26 @@ bool clsPinBar::CheckOrderPinBar()
 {  
    double OrderPair = GetPairOrder();
    
-   if (OrderPair != arrayBar[0][5]
-      && arrayBar[0][4]==GetPairs(_Symbol))
-         arrayBar[0][6] = OrderPair;    
+   if (OrderPair != arrayBar[0][4]
+      && arraySymbol[0]==_Symbol)
+         arrayBar[0][5] = OrderPair;    
  
-   if (arrayBar[0][6] < arrayBar[0][5]
-      && arrayBar[0][4]==GetPairs(_Symbol)) 
+   if (arrayBar[0][5] < arrayBar[0][4]
+      && arraySymbol[0]==_Symbol) 
          return(true);
    else
          return(false);
 }
-void clsPinBar::CheckArrayBar()
-{
-   if (Open[CandleNumber] != arrayBar[0][0] 
-      && Close[CandleNumber] != arrayBar[0][1]
-      && High[CandleNumber] != arrayBar[0][2]
-      && Low[CandleNumber] != arrayBar[0][3])         
-         CreateArray=false;
-      
-}
+
 void clsPinBar::CreateArrayBar()
 {
-   if (!CreateArray)
-   {      
       arrayBar[0][0]=Open[CandleNumber];  //Open
       arrayBar[0][1]=Close[CandleNumber]; //Close
       arrayBar[0][2]=High[CandleNumber];  //High
       arrayBar[0][3]=Low[CandleNumber];   //Low
-      arrayBar[0][4]=GetPairs(_Symbol);   //Pairs
-      arrayBar[0][5]=maxOpenPosition;     //Max Open Positions
-      arrayBar[0][6]=0;                   //Opened Positions
-      CreateArray=true;                
-   }
-   
+      arrayBar[0][4]=maxOpenPosition;     //Max Open Positions
+      arrayBar[0][5]=0;                   //Opened Positions   
+      arraySymbol[0]=_Symbol;             //Pairs
 }
 double clsPinBar::GetPairs(string sSymbol)
 {
@@ -206,7 +191,7 @@ double clsPinBar::GetPairOrder()
   for (int i=OrdersTotal()-1; i >= 0 ;i--)
    {
       if(OrderSelect(i,SELECT_BY_POS,MODE_TRADES))
-         if(GetPairs(OrderSymbol())==arrayBar[0][4])
+         if(GetPairs(OrderSymbol())==arraySymbol[0])
              TotalOrder+=1;
    }
    
@@ -215,8 +200,7 @@ double clsPinBar::GetPairOrder()
 
 clsPinBar::clsPinBar(double _bodycandle,double _minsize, int _maxopenposition, 
                      bool _OpenPositionOnNewPinBar, int _CandleNumber)
-  {
-         
+  {         
          bodycandle=_bodycandle *.01;
          minSize=_minsize;
          maxOpenPosition = _maxopenposition;
@@ -224,7 +208,6 @@ clsPinBar::clsPinBar(double _bodycandle,double _minsize, int _maxopenposition,
          OpenPositionOnNewPinBar=_OpenPositionOnNewPinBar;
          CandleNumber=_CandleNumber;
          //ArrayResize(arrPosition,_maxopenposition);
-         CreateArray=false;
          order = -1;
          CandlePrice=-1;
   }
