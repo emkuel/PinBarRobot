@@ -1,54 +1,32 @@
 //+------------------------------------------------------------------+
-//|                                                    clsPinBar.mqh |
+//|                                                    clsPinBar.mq4 |
 //|                                                      FutureRobot |
 //|                                             https://www.mql5.com |
 //+------------------------------------------------------------------+
+#property library
 #property copyright "FutureRobot"
 #property link      "https://www.mql5.com"
 #property version   "1.00"
-#property strict
-
-class clsPinBar
-  {
-private:       
-                     int maxOpenPosition;
-                     double bodycandle; 
-                     double minSize;
-                     double lotsize;
-                     int order;
-                     bool OpenPositionOnNewPinBar;
-                     int magicnumber; 
-                     double arrayBar[1][6];
-                     string arraySymbol[1];
-                     int CandleNumber;
-                     double CandlePrice;
-                     
-                     bool CheckOrderPinBar();                     
-                     void CheckArrayBar();
-                     void CreateArrayBar();
-                     double GetPairs(string sSymbol);
-                     double GetPairOrder();                                       
-public:                                
-                      
-                     bool PinBarInitBar();                    
-                     bool PinBarCandle();                     
-                     void OpenOrder();
-                     
-                     clsPinBar(double _bodycandle,double _minsize , int _maxopenposition,
-                              bool _OpenPositionOnNewPinBar, int _CandleNumber);
-                     ~clsPinBar();                     
-                     
-                     //double stoploss;
-                     //double takeprofit;
+//#property strict
+    
+int maxOpenPosition;
+double bodycandle; 
+double minSize;
+double lotsize;
+int order;
+bool OpenPositionOnNewPinBar;
+int magicnumber; 
+double arrayBar[1][6];
+string arraySymbol[1];
+int CandleNumber;
+double CandlePrice;
                                           
-                     double GetPrice(){return(CandlePrice);};                     
-                     int GetOpenedOrder(){return((int)arrayBar[0][5]);};
-                     int GetMagicNumber(){return(magicnumber);};
-                     int GetOrder(){return(order);};
+double GetPrice(){return(CandlePrice);};                     
+int GetOpenedOrder(){return((int)arrayBar[0][5]);};
+int GetMagicNumber(){return(magicnumber);};
+int GetOrder(){return(order);};
 
-};
-
-bool clsPinBar::PinBarInitBar()
+bool PinBarInitBar()
 {
    CreateArrayBar();
    
@@ -64,7 +42,8 @@ bool clsPinBar::PinBarInitBar()
       else
             return(false);
 }
-bool clsPinBar::PinBarCandle()
+
+bool PinBarCandle()
 {  
    
    double total = arrayBar[0][2]-arrayBar[0][3];
@@ -122,37 +101,7 @@ bool clsPinBar::PinBarCandle()
     return (false);
 }
 
-// void clsPinBar::OpenOrder()
-// {     
-//    if (arrayBar[0][6] < maxOpenPosition)
-//    {  
-//       if (order == 1)
-//       {                      
-//          if(OrderSend(Symbol(),order,lotsize,Bid,3,Bid+(stoploss*Point),Bid - (takeprofit* Point),NULL,0+magicnumber,0,clrGreen))         
-//             {
-//                magicnumber++;
-//                arrayBar[0][6]++;                        
-//                Print("Short transaction opened");
-//             }     
-//          else
-//             Print("Cannot open short transaction.");
-//       }
-//       else if (order == 0)
-//       {         
-//          if(OrderSend(Symbol(),order,lotsize,Ask,3,Ask - (stoploss * Point),Ask + (takeprofit * Point),NULL,0+magicnumber,0,clrGreen))
-//             {
-//                magicnumber++;
-//                arrayBar[0][6]++; 
-//                Print("Long transaction opened");
-//             }
-//          else
-//             Print("Cannot open long transaction.");      
-//       }
-//    }
-             
-// }
-
-bool clsPinBar::CheckOrderPinBar()  
+bool CheckOrderPinBar()  
 {  
    double OrderPair = GetPairOrder();
    
@@ -167,7 +116,7 @@ bool clsPinBar::CheckOrderPinBar()
          return(false);
 }
 
-void clsPinBar::CreateArrayBar()
+void CreateArrayBar()
 {
       arrayBar[0][0]=Open[CandleNumber];  //Open
       arrayBar[0][1]=Close[CandleNumber]; //Close
@@ -177,7 +126,8 @@ void clsPinBar::CreateArrayBar()
       arrayBar[0][5]=0;                   //Opened Positions   
       arraySymbol[0]=_Symbol;             //Pairs
 }
-double clsPinBar::GetPairs(string sSymbol)
+
+double GetPairs(string sSymbol)
 {
    if (sSymbol == "EURUSD")
       return (0);
@@ -185,20 +135,20 @@ double clsPinBar::GetPairs(string sSymbol)
       return (1);
    else return(-1);
 }
-double clsPinBar::GetPairOrder()
+double GetPairOrder()
 {
   double TotalOrder=0;
   for (int i=OrdersTotal()-1; i >= 0 ;i--)
    {
       if(OrderSelect(i,SELECT_BY_POS,MODE_TRADES))
-         if(GetPairs(OrderSymbol())==arraySymbol[0])
+         if(OrderSymbol()==arraySymbol[0])
              TotalOrder+=1;
    }
    
    return (TotalOrder);
  }
 
-clsPinBar::clsPinBar(double _bodycandle,double _minsize, int _maxopenposition, 
+void initPinBarClass(double _bodycandle,double _minsize, int _maxopenposition, 
                      bool _OpenPositionOnNewPinBar, int _CandleNumber)
   {         
          bodycandle=_bodycandle *.01;
@@ -211,9 +161,3 @@ clsPinBar::clsPinBar(double _bodycandle,double _minsize, int _maxopenposition,
          order = -1;
          CandlePrice=-1;
   }
-
-
-clsPinBar::~clsPinBar()
-  {
-  }
-  

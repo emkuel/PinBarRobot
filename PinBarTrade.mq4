@@ -8,10 +8,22 @@
 #property version   "1.00"
 #property strict
 
-#include <clsPinBar.mqh>
-#include <clsOrder.mqh>
-#include <clsTrendLine.mqh>
-#include <clsCandle.mqh>
+#import "clsPinBar.ex4"
+   void initPinBarClass(double _bodycandle,double _minsize , int _maxopenposition,
+                              bool _OpenPositionOnNewPinBar, int _CandleNumber);
+   bool PinBarInitBar();                    
+   bool PinBarCandle();    
+   double GetPrice();                    
+   int GetOpenedOrder();
+   int GetMagicNumber();
+   int GetOrder();  
+#import "clsOrder.ex4"
+   double GetValueFromPercentage(double _Value,double _lotsize,int Mode);
+   int OpenOrder(int OpenedOrder, int maxOpenPosition, int order,double lotsize, 
+            double stoploss,double takeprofit, int magicnumber);
+#import "clsCandle.ex4"
+   bool CheckCurrentCandle();
+#import
 
 enum Profit
 {   
@@ -34,41 +46,27 @@ input int CandleNumber =1;
 extern double BodyPinBarPart = 40.0;
 extern double MinSize = 50.0;
 
-clsPinBar PinBar(BodyPinBarPart,MinSize,MaxOpenPosition,OpenPositionOnNewPinBar,CandleNumber);
-clsOrder Order();
-clsCandle Candle();
-//+------------------------------------------------------------------+
-//| Expert initialization function                                   |
-//+------------------------------------------------------------------+
 int OnInit()
-  {     
-  Comment("Account Balance: " + AccountBalance());
-  StopLoss = Order.GetValueFromPercentage(StopLoss,LotSize,StopLossMode);
-  TakeProfit = Order.GetValueFromPercentage(TakeProfit,LotSize,TakeProfitMode);
+  {
+  initPinBarClass(BodyPinBarPart,MinSize,MaxOpenPosition,OpenPositionOnNewPinBar,CandleNumber);
+  
+  Comment("Account Balance: " + (string)AccountBalance());
+  StopLoss = GetValueFromPercentage(StopLoss,LotSize,StopLossMode);
+  TakeProfit = GetValueFromPercentage(TakeProfit,LotSize,TakeProfitMode);
  
    return(INIT_SUCCEEDED);
   }
-//+------------------------------------------------------------------+
-//| Expert deinitialization function                                 |
-//+------------------------------------------------------------------+
 void OnDeinit(const int reason)
   {
-//---
-   
   }
-//+------------------------------------------------------------------+
-//| Expert tick function                                             |
-//+------------------------------------------------------------------+
 void OnTick()
-  {
-   
-    if(Candle.CheckCurrentCandle())
-      if (PinBar.PinBarInitBar())
-          if (PinBar.PinBarCandle())
-            Order.OpenOrder(PinBar.GetOpenedOrder(),MaxOpenPosition,PinBar.GetOrder(),LotSize,
-                            StopLoss,TakeProfit,PinBar.GetMagicNumber());
-         //PinBar.OpenOrder();
-     
+  {   
+    if(CheckCurrentCandle())
+      if (PinBarInitBar())
+          if (PinBarCandle())
+               OpenOrder(GetOpenedOrder(),MaxOpenPosition,GetOrder(),LotSize,
+                            StopLoss,TakeProfit,GetMagicNumber());
+                                 
   }
 //+------------------------------------------------------------------+
 //| ChartEvent function                                              |
